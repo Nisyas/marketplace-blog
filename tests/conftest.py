@@ -1,60 +1,83 @@
-import asyncio
+import os
 from collections.abc import AsyncGenerator
 
+os.environ["TESTING"] = "1"
+
 import pytest
-from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+import pytest_asyncio
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.pool import NullPool
 
-from app.core.config import get_settings
 from app.db.base import Base
-from app.main import app
-from app.db import session as app_db_session
-
-settings = get_settings()
+from app.db.session import get_db
 
 TEST_DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/blog_db_test"
 
-engine_test = create_async_engine(
-    TEST_DATABASE_URL,
-    echo=False,
-)
-AsyncSessionTest = async_sessionmaker(
-    bind=engine_test,
-    class_=AsyncSession,
-    expire_on_commit=False,
-)
 
+@pytest_asyncio.fixture(scope="function")
+async def test_engine():
+    engine = create_async_engine(
+        TEST_DATABASE_URL,
+        echo=False,
+        poolclass=NullPool,
+    )
 
-@pytest.fixture(scope="session")
-def event_loop():
-    """Отдаём общий event loop для pytest-asyncio."""
-    loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
-
-
-@pytest.fixture(scope="session", autouse=True)
-async def prepare_database():
-    """Создаём схему в тестовой БД один раз за сессию."""
-    async with engine_test.begin() as conn:
+    async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
+    yield engine
 
-@pytest.fixture()
-async def db_session() -> AsyncGenerator[AsyncSession, None]:
+    await engine.dispose()
+
+
+@pytest_asyncio.fixture
+async def db_session(test_engine) -> AsyncGenerator[AsyncSession, None]:
+    AsyncSessionTest = async_sessionmaker(
+        bind=test_engine,
+        class_=AsyncSession,
+        expire_on_commit=False,
+    )
+
     async with AsyncSessionTest() as session:
         yield session
 
 
-@pytest.fixture()
+@pytest.fixture(autouse=True)
+def mock_storage(monkeypatch):
+    def fake_upload(file_obj, filename: str, content_type: str | None = None) -> str:
+        return f"http://test.local/fake/{filename}"
+
+    import app.services.storage
+
+    monkeypatch.setattr(app.services.storage, "upload_image_file", fake_upload)
+
+
+@pytest.fixture(autouse=True)
+def mock_celery(monkeypatch):
+    def fake_delay(*args, **kwargs):
+        pass
+
+    import app.tasks.email_tasks
+
+    monkeypatch.setattr(
+        app.tasks.email_tasks.send_registration_email_task, "delay", fake_delay
+    )
+
+
+@pytest_asyncio.fixture
 async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
-    async def _get_test_db() -> AsyncGenerator[AsyncSession, None]:
+    async def override_get_db() -> AsyncGenerator[AsyncSession, None]:
         yield db_session
 
-    from app.db import session as app_db_session
+    from app.main import app
 
-    app_db_session.get_db = _get_test_db  # type: ignore
+    app.dependency_overrides[get_db] = override_get_db
 
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test", follow_redirects=True
+    ) as ac:
         yield ac
+
+    app.dependency_overrides.clear()

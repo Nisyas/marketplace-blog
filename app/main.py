@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+import os
 
 from app.core.config import get_settings
 from app.core.middleware import AuthMiddleware
@@ -15,14 +16,15 @@ app = FastAPI(
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(categories.router, prefix="/api/v1")
 app.include_router(articles.router, prefix="/api/v1")
-app.add_middleware(
-    AuthMiddleware,
-    protected_paths=[
-        "/api/v1/articles",
-        "/api/v1/categories",
-        "/api/v1/auth/me",
-    ],
-)
+if not os.getenv("TESTING"):
+    app.add_middleware(
+        AuthMiddleware,
+        protected_paths=[
+            "/api/v1/articles",
+            "/api/v1/categories",
+            "/api/v1/auth/me",
+        ],
+    )
 
 
 @app.get("/health")

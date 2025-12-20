@@ -3,11 +3,10 @@ from typing import Callable
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
+from sqlalchemy import select
 
 from app.core.security import decode_access_token
-from app.db.session import AsyncSessionLocal
 from app.models.user import User
-from sqlalchemy import select
 
 
 class AuthMiddleware(BaseHTTPMiddleware):
@@ -17,8 +16,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         request.state.user = None
-
         path = request.url.path
+
         if not self._is_protected_path(path):
             return await call_next(request)
 
@@ -40,15 +39,16 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 status_code=401, content={"detail": "Invalid token payload"}
             )
 
+        from app.db.session import AsyncSessionLocal
+
         async with AsyncSessionLocal() as session:
             user = await self._get_user(session, int(user_id))
+            if user is None or not user.is_active:
+                return JSONResponse(
+                    status_code=401, content={"detail": "User not found or inactive"}
+                )
 
-        if user is None or not user.is_active:
-            return JSONResponse(
-                status_code=401, content={"detail": "User not found or inactive"}
-            )
-
-        request.state.user = user
+            request.state.user = user
 
         response = await call_next(request)
         return response
