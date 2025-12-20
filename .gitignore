@@ -1,0 +1,64 @@
+# Базовое под Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Кэш и артефакты
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.db
+*.sqlite
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Тесты и покрытия
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+
+# Virtualenv / Poetry
+.venv/
+env/
+venv/
+.envrc
+
+# Настройки IDE/редакторов
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-data/
+*.pid
+
+# Локальные env-файлы и секреты
+.env
+.env.*
+!.env.example
+
+# Alembic (миграции) — берем только скрипты, остальные артефакты игнорируем при необходимости
+alembic/*.pyc
+alembic/__pycache__/
+
+# Minio / временные файлы
+minio_data/
+postgres_data/
+
+# Прочий мусор
+*.tmp
+*.bak
