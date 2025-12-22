@@ -2,6 +2,7 @@ from celery import Celery
 
 from app.core.config import get_settings
 
+
 settings = get_settings()
 
 celery_app = Celery(
@@ -18,4 +19,4 @@ celery_app.conf.update(
     enable_utc=True,
 )
 celery_app.autodiscover_tasks(["app.tasks"])
-import app.tasks.email_tasks
+import app.tasks.email_tasks  # noqa: F401, E402
