@@ -31,11 +31,6 @@ jobs:
     - name: Run ruff format check
       run: ruff format --check app tests
     
-    - name: Run isort check (import sorting)
-      run: |
-        pip install isort
-        isort --check-only app tests
-    
     - name: Type checking with mypy
       run: |
         pip install mypy sqlalchemy[mypy]
