@@ -62,7 +62,9 @@ def mock_celery(monkeypatch):
     import app.tasks.email_tasks
 
     monkeypatch.setattr(
-        app.tasks.email_tasks.send_registration_email_task, "delay", fake_delay
+        app.tasks.email_tasks.send_registration_email_task,
+        "delay",
+        fake_delay,
     )
 
 
@@ -76,8 +78,30 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
     app.dependency_overrides[get_db] = override_get_db
 
     async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test", follow_redirects=True
+        transport=ASGITransport(app=app),
+        base_url="http://test",
+        follow_redirects=True,
     ) as ac:
         yield ac
 
     app.dependency_overrides.clear()
+
+
+@pytest.fixture
+async def auth_cookies(client: AsyncClient) -> dict:
+    email = "testuser@example.com"
+    password = "password123"
+
+    resp = await client.post(
+        "/api/v1/auth/register",
+        data={"email": email, "password": password},
+    )
+    assert resp.status_code == 201
+
+    login_resp = await client.post(
+        "/api/v1/auth/login",
+        data={"email": email, "password": password},
+    )
+    assert login_resp.status_code == 200
+
+    return login_resp.cookies

@@ -7,6 +7,7 @@ from sqlalchemy import select
 
 from app.core.security import decode_access_token
 from app.models.user import User
+from app.db.session import AsyncSessionLocal
 
 
 class AuthMiddleware(BaseHTTPMiddleware):
@@ -39,7 +40,6 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 status_code=401, content={"detail": "Invalid token payload"}
             )
 
-        from app.db.session import AsyncSessionLocal
 
         async with AsyncSessionLocal() as session:
             user = await self._get_user(session, int(user_id))

@@ -39,7 +39,6 @@ class Article(Base):
     search_vector: Mapped[str] = mapped_column(
         TSVECTOR,
         nullable=False,
-        server_default="",
     )
 
     category: Mapped["Category"] = relationship(back_populates="articles")  # noqa: F821

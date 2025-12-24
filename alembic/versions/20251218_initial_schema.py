@@ -85,12 +85,27 @@ def upgrade() -> None:
             nullable=False,
             server_default=sa.text("false"),
         ),
-        sa.Column(
-            "search_vector",
-            sa.dialects.postgresql.TSVECTOR(),
-            nullable=False,
-            server_default="",
-        ),
+    )
+    
+    op.execute(
+        """
+        ALTER TABLE articles
+        ADD COLUMN search_vector tsvector
+        GENERATED ALWAYS AS (
+            to_tsvector(
+                'simple',
+                coalesce(title, '') || ' ' || coalesce(content, '')
+            )
+        ) STORED;
+        """
+    )
+
+    op.execute(
+        """
+        CREATE INDEX ix_articles_search_vector
+        ON articles
+        USING GIN (search_vector);
+        """
     )
 
     op.create_table(
