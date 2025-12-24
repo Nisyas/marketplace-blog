@@ -39,5 +39,7 @@ class CategoryRepository:
         stmt = select(Category).order_by(Category.name)
         result = await self._session.execute(stmt)
         categories = result.scalars().all()
-        logger.debug("CategoryRepository.list_all: count={count}", count=len(categories))
+        logger.debug(
+            "CategoryRepository.list_all: count={count}", count=len(categories)
+        )
         return categories

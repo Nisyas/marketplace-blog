@@ -46,7 +46,10 @@ if not os.getenv("TESTING"):
             "/api/v1/auth/me",
         ],
     )
-    logger.info("AuthMiddleware enabled", protected_paths=["/api/v1/articles", "/api/v1/categories", "/api/v1/auth/me"])
+    logger.info(
+        "AuthMiddleware enabled",
+        protected_paths=["/api/v1/articles", "/api/v1/categories", "/api/v1/auth/me"],
+    )
 
 
 @app.get("/health")

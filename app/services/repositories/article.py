@@ -72,9 +72,15 @@ class ArticleRepository:
         result = await self._session.execute(stmt)
         article = result.scalar_one_or_none()
         if article is None:
-            logger.debug("ArticleRepository.get_by_id: not found id={id}", id=article_id)
+            logger.debug(
+                "ArticleRepository.get_by_id: not found id={id}", id=article_id
+            )
         else:
-            logger.debug("ArticleRepository.get_by_id: found id={id} title={title}", id=article.id, title=article.title)
+            logger.debug(
+                "ArticleRepository.get_by_id: found id={id} title={title}",
+                id=article.id,
+                title=article.title,
+            )
         return article
 
     async def create(self, data: ArticleCreate) -> Article:
@@ -107,11 +113,19 @@ class ArticleRepository:
             setattr(article, field, value)
         await self._session.commit()
         await self._session.refresh(article)
-        logger.info("ArticleRepository.update: updated id={id} title={title}", id=article.id, title=article.title)
+        logger.info(
+            "ArticleRepository.update: updated id={id} title={title}",
+            id=article.id,
+            title=article.title,
+        )
         return article
 
     async def soft_delete(self, article: Article) -> None:
-        logger.info("ArticleRepository.soft_delete: id={id} title={title}", id=article.id, title=article.title)
+        logger.info(
+            "ArticleRepository.soft_delete: id={id} title={title}",
+            id=article.id,
+            title=article.title,
+        )
 
         deleted = DeletedArticle(
             original_id=article.id,

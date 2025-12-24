@@ -23,7 +23,10 @@ def send_registration_email(to_email: str) -> None:
     logger.info("Preparing registration email: to_email={to_email}", to_email=to_email)
 
     if not to_email or "@" not in to_email:
-        logger.warning("Invalid email address for registration email: to_email={to_email}", to_email=to_email)
+        logger.warning(
+            "Invalid email address for registration email: to_email={to_email}",
+            to_email=to_email,
+        )
         raise ValueError("Invalid email address")
 
     message = EmailMessage()
@@ -59,7 +62,10 @@ def send_registration_email(to_email: str) -> None:
 
             smtp.send_message(message)
 
-        logger.info("Registration email sent successfully: to_email={to_email}", to_email=to_email)
+        logger.info(
+            "Registration email sent successfully: to_email={to_email}",
+            to_email=to_email,
+        )
 
     except smtplib.SMTPAuthenticationError as e:
         logger.error("SMTP authentication failed: error={error}", error=str(e))

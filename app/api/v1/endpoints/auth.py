@@ -27,7 +27,9 @@ async def register_user(
     existing_user = await user_repo.get_by_email(user_in.email)
 
     if existing_user is not None:
-        logger.warning("Registration failed: email already exists email={email}", email=email)
+        logger.warning(
+            "Registration failed: email already exists email={email}", email=email
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User with this email already exists",
@@ -39,10 +41,18 @@ async def register_user(
         hashed_password=hashed_password,
     )
 
-    logger.info("User registered successfully: user_id={user_id} email={email}", user_id=user.id, email=user.email)
+    logger.info(
+        "User registered successfully: user_id={user_id} email={email}",
+        user_id=user.id,
+        email=user.email,
+    )
 
     send_registration_email_task.delay(user.email)
-    logger.debug("Registration email task enqueued for user_id={user_id} email={email}", user_id=user.id, email=user.email)
+    logger.debug(
+        "Registration email task enqueued for user_id={user_id} email={email}",
+        user_id=user.id,
+        email=user.email,
+    )
 
     return UserRead.model_validate(user)
 
@@ -75,7 +85,11 @@ async def login(
         samesite="lax",
     )
 
-    logger.info("Login successful: user_id={user_id} email={email}", user_id=user.id, email=user.email)
+    logger.info(
+        "Login successful: user_id={user_id} email={email}",
+        user_id=user.id,
+        email=user.email,
+    )
 
     return UserRead.model_validate(user)
 
@@ -96,5 +110,9 @@ async def read_current_user(request: Request) -> UserRead:
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated"
         )
 
-    logger.debug("Current user requested: user_id={user_id} email={email}", user_id=user.id, email=user.email)
+    logger.debug(
+        "Current user requested: user_id={user_id} email={email}",
+        user_id=user.id,
+        email=user.email,
+    )
     return UserRead.model_validate(user)

@@ -86,7 +86,7 @@ def upgrade() -> None:
             server_default=sa.text("false"),
         ),
     )
-    
+
     op.execute(
         """
         ALTER TABLE articles

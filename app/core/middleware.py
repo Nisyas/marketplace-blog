@@ -40,7 +40,6 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 status_code=401, content={"detail": "Invalid token payload"}
             )
 
-
         async with AsyncSessionLocal() as session:
             user = await self._get_user(session, int(user_id))
             if user is None or not user.is_active:

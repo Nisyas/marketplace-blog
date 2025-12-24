@@ -45,8 +45,12 @@ async def test_create_category(client: AsyncClient, auth_cookies: dict):
 
 @pytest.mark.asyncio
 async def test_list_categories(client: AsyncClient, auth_cookies: dict):
-    await create_category(client, auth_cookies, name="Cat1", slug="cat1", description="Description 1")
-    await create_category(client, auth_cookies, name="Cat2", slug="cat2", description="Description 2")
+    await create_category(
+        client, auth_cookies, name="Cat1", slug="cat1", description="Description 1"
+    )
+    await create_category(
+        client, auth_cookies, name="Cat2", slug="cat2", description="Description 2"
+    )
 
     resp = await client.get("/api/v1/categories")
 
@@ -110,7 +114,9 @@ async def test_list_articles_with_pagination(client: AsyncClient, auth_cookies: 
         )
         assert resp.status_code == 201
 
-    resp = await client.get("/api/v1/articles", params={"page_number": 1, "page_size": 10})
+    resp = await client.get(
+        "/api/v1/articles", params={"page_number": 1, "page_size": 10}
+    )
     assert resp.status_code == 200
     data = resp.json()
     assert data["page_number"] == 1

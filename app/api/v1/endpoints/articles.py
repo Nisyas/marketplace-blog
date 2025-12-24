@@ -141,7 +141,9 @@ async def get_article(
             status_code=status.HTTP_404_NOT_FOUND, detail="Article not found"
         )
 
-    logger.debug("Article fetched: id={id} title={title}", id=article.id, title=article.title)
+    logger.debug(
+        "Article fetched: id={id} title={title}", id=article.id, title=article.title
+    )
     return ArticleRead.model_validate(article)
 
 
@@ -162,7 +164,9 @@ async def update_article(
 
     article = await repo.update(article, article_in)
 
-    logger.info("Article updated: id={id} title={title}", id=article.id, title=article.title)
+    logger.info(
+        "Article updated: id={id} title={title}", id=article.id, title=article.title
+    )
     return ArticleRead.model_validate(article)
 
 

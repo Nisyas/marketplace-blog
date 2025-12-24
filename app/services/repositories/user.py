@@ -17,9 +17,15 @@ class UserRepository:
         result = await self._session.execute(stmt)
         user = result.scalar_one_or_none()
         if user is None:
-            logger.debug("UserRepository.get_by_id: user not found user_id={user_id}", user_id=user_id)
+            logger.debug(
+                "UserRepository.get_by_id: user not found user_id={user_id}",
+                user_id=user_id,
+            )
         else:
-            logger.debug("UserRepository.get_by_id: user found user_id={user_id}", user_id=user.id)
+            logger.debug(
+                "UserRepository.get_by_id: user found user_id={user_id}",
+                user_id=user.id,
+            )
         return user
 
     async def get_by_email(self, email: str) -> User | None:
@@ -28,9 +34,15 @@ class UserRepository:
         result = await self._session.execute(stmt)
         user = result.scalar_one_or_none()
         if user is None:
-            logger.debug("UserRepository.get_by_email: user not found email={email}", email=email)
+            logger.debug(
+                "UserRepository.get_by_email: user not found email={email}", email=email
+            )
         else:
-            logger.debug("UserRepository.get_by_email: user found user_id={user_id} email={email}", user_id=user.id, email=user.email)
+            logger.debug(
+                "UserRepository.get_by_email: user found user_id={user_id} email={email}",
+                user_id=user.id,
+                email=user.email,
+            )
         return user
 
     async def list_all(self) -> Sequence[User]:
@@ -50,5 +62,9 @@ class UserRepository:
         self._session.add(user)
         await self._session.commit()
         await self._session.refresh(user)
-        logger.info("UserRepository.create: created user_id={user_id} email={email}", user_id=user.id, email=user.email)
+        logger.info(
+            "UserRepository.create: created user_id={user_id} email={email}",
+            user_id=user.id,
+            email=user.email,
+        )
         return user

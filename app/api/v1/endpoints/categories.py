@@ -25,7 +25,12 @@ async def create_category(
     category_in = CategoryCreate(name=name, slug=slug, description=description)
     category = await repo.create(category_in)
 
-    logger.info("Category created: id={id} name={name} slug={slug}", id=category.id, name=category.name, slug=category.slug)
+    logger.info(
+        "Category created: id={id} name={name} slug={slug}",
+        id=category.id,
+        name=category.name,
+        slug=category.slug,
+    )
 
     return CategoryRead.model_validate(category)
 
