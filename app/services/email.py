@@ -1,6 +1,5 @@
 import smtplib
 from email.message import EmailMessage
-from time import sleep
 
 from tenacity import (
     retry,
@@ -8,7 +7,7 @@ from tenacity import (
     wait_exponential,
     retry_if_exception_type,
 )
-
+from loguru import logger
 from app.core.config import get_settings
 
 

@@ -3,7 +3,6 @@ from typing import BinaryIO
 
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
-from botocore.config import Config
 
 from app.core.config import get_settings
 
